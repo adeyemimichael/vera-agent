@@ -1,0 +1,21 @@
+{
+  "name": "vera-marketplace",
+  "version": "1.0.0",
+  "description": "Verifiable Exchange of Autonomous Resources",
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../contracts && npm install",
+    "dev": "bash scripts/dev.sh",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build && cd ../backend && npm run build",
+    "test": "cd contracts && npm test && cd ../backend && npm test",
+    "deploy:contracts": "cd contracts && npm run deploy"
+  },
+  "keywords": ["hedera", "agents", "marketplace", "blockchain", "autonomous"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
