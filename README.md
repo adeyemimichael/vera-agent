@@ -1,6 +1,6 @@
 # VERA — Verifiable Exchange of Autonomous Resources
 
-A multi-agent marketplace with Hedera on-chain verification, microtransaction settlement, and modern dashboard.
+A production-grade multi-agent marketplace with Hedera on-chain verification, microtransaction settlement, and beautiful modern dashboard.
 
 ## 🎯 Features
 
@@ -8,39 +8,50 @@ A multi-agent marketplace with Hedera on-chain verification, microtransaction se
 - **Hedera Integration**: HCS logging, microtransactions, and on-chain verification
 - **ERC-8004 Agent Registry**: Smart contract-based agent identity management
 - **Modern Dashboard**: Beautiful React UI with real-time negotiation viewer
+- **Demo Mode**: Works without Hedera credentials for instant testing
 
-## 🚀 Quick Start
+## ⚡ Quick Start (2 Minutes)
 
 ### Prerequisites
-- Node.js 18+
-- Hedera testnet account
-- MetaMask or similar wallet
+- Node.js 18+ installed
 
-### Installation
+### Installation & Run
 
 ```bash
-# Install all dependencies
-npm run install:all
+# 1. Setup (installs dependencies and creates .env files)
+npm run setup
 
-# Set up environment variables
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-# Edit .env files with your Hedera credentials
-
-# Deploy smart contracts
-cd contracts
-npm run deploy
-
-# Start backend
-cd ../backend
-npm run dev
-
-# Start frontend (in new terminal)
-cd ../frontend
+# 2. Start everything (backend + frontend)
 npm run dev
 ```
 
-Visit `http://localhost:5173` to see the dashboard.
+**That's it!** Open http://localhost:5174 in your browser.
+
+### What You'll See
+- ✅ Beautiful dashboard with gradient UI
+- ✅ "Start Simulation" button - click to watch agents negotiate
+- ✅ Real-time negotiation viewer with chat-style messages
+- ✅ Agent profiles with reputation scores
+- ✅ HCS logs with on-chain verification
+- ✅ Dark/light mode toggle
+
+### Demo Mode
+The app runs in **demo mode** by default (no Hedera account needed):
+- ✅ All UI features work
+- ✅ Agent negotiation works
+- ✅ Real-time updates work
+- ⚠️ HCS logging is simulated
+- ⚠️ Payments are simulated
+
+### Enable Full Hedera Integration (Optional)
+
+1. Get free testnet account: https://portal.hedera.com/
+2. Edit `backend/.env`:
+   ```env
+   HEDERA_ACCOUNT_ID=0.0.YOUR_ACCOUNT_ID
+   HEDERA_PRIVATE_KEY=YOUR_PRIVATE_KEY
+   ```
+3. Restart backend - real HCS logging enabled!
 
 ## 📁 Project Structure
 

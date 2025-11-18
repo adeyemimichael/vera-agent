@@ -11,28 +11,46 @@ import { logger } from '../utils/logger';
 import { SignedMessage, HCSLogEntry } from '../types';
 
 export class HederaService {
-  private client: Client;
-  private operatorId: AccountId;
-  private operatorKey: PrivateKey;
+  private client: Client | null = null;
+  private operatorId: AccountId | null = null;
+  private operatorKey: PrivateKey | null = null;
   private topicId: string | null = null;
+  private isConfigured: boolean = false;
 
   constructor() {
     const accountId = process.env.HEDERA_ACCOUNT_ID;
     const privateKey = process.env.HEDERA_PRIVATE_KEY;
 
     if (!accountId || !privateKey) {
-      throw new Error('Hedera credentials not configured');
+      logger.warn('[Hedera] Credentials not configured - running in demo mode');
+      logger.warn('[Hedera] HCS logging and payments will be simulated');
+      this.isConfigured = false;
+      return;
     }
 
-    this.operatorId = AccountId.fromString(accountId);
-    this.operatorKey = PrivateKey.fromString(privateKey);
+    try {
+      this.operatorId = AccountId.fromString(accountId);
+      this.operatorKey = PrivateKey.fromString(privateKey);
 
-    // Initialize client for testnet
-    this.client = Client.forTestnet();
-    this.client.setOperator(this.operatorId, this.operatorKey);
+      // Initialize client for testnet
+      this.client = Client.forTestnet();
+      this.client.setOperator(this.operatorId, this.operatorKey);
+      this.isConfigured = true;
+      logger.info('[Hedera] Successfully configured');
+    } catch (error) {
+      logger.error('[Hedera] Failed to initialize:', error);
+      this.isConfigured = false;
+    }
   }
 
   async createTopic(): Promise<string> {
+    if (!this.isConfigured || !this.client || !this.operatorKey) {
+      // Demo mode - generate fake topic ID
+      this.topicId = `0.0.${Math.floor(Math.random() * 1000000)}`;
+      logger.info(`[Hedera] Demo mode - simulated topic: ${this.topicId}`);
+      return this.topicId;
+    }
+
     try {
       logger.info('[Hedera] Creating HCS topic...');
 
@@ -54,11 +72,18 @@ export class HederaService {
   }
 
   async submitMessage(message: SignedMessage): Promise<string> {
-    try {
-      if (!this.topicId) {
-        await this.createTopic();
-      }
+    if (!this.topicId) {
+      await this.createTopic();
+    }
 
+    if (!this.isConfigured || !this.client) {
+      // Demo mode - simulate message submission
+      const sequence = Math.floor(Math.random() * 1000).toString();
+      logger.info(`[Hedera] Demo mode - simulated message submission. Sequence: ${sequence}`);
+      return sequence;
+    }
+
+    try {
       logger.info(`[Hedera] Submitting message to topic ${this.topicId}`);
 
       const messageString = JSON.stringify(message);
@@ -79,6 +104,13 @@ export class HederaService {
   }
 
   async sendPayment(toAccountId: string, amount: number): Promise<string> {
+    if (!this.isConfigured || !this.client || !this.operatorId) {
+      // Demo mode - simulate payment
+      const txId = `0.0.${Math.floor(Math.random() * 1000000)}@${Date.now()}`;
+      logger.info(`[Hedera] Demo mode - simulated payment of ${amount} HBAR to ${toAccountId}`);
+      return txId;
+    }
+
     try {
       logger.info(`[Hedera] Sending ${amount} HBAR to ${toAccountId}`);
 
@@ -111,7 +143,13 @@ export class HederaService {
   }
 
   async close(): Promise<void> {
-    this.client.close();
+    if (this.client) {
+      this.client.close();
+    }
+  }
+
+  isReady(): boolean {
+    return this.isConfigured;
   }
 }
 
