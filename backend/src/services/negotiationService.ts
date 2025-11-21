@@ -2,25 +2,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { BuyerAgent } from '../agents/BuyerAgent';
 import { SellerAgent } from '../agents/SellerAgent';
 import { NegotiationSession, SignedMessage, MessageType, AgentIdentity, AgentRole, AgentStatus } from '../types';
-import { HederaService, getHederaService } from './hederaService';
+import { hederaService } from './hederaService';
 import { logger } from '../utils/logger';
 import { hashMessage } from '../utils/crypto';
 
 export class NegotiationService {
   private sessions: Map<string, NegotiationSession> = new Map();
   private agents: Map<string, AgentIdentity> = new Map();
-  private hederaService: HederaService | null = null;
 
   constructor() {
-    // Initialize hederaService lazily when first needed
     this.initializeDemoAgents();
-  }
-
-  private getHederaService(): HederaService {
-    if (!this.hederaService) {
-      this.hederaService = getHederaService();
-    }
-    return this.hederaService;
   }
 
   private initializeDemoAgents(): void {
@@ -71,7 +62,7 @@ export class NegotiationService {
     this.sessions.set(sessionId, session);
 
     // Create HCS topic for this session
-    const topicId = await this.getHederaService().createTopic();
+    const topicId = await hederaService.createTopic();
     session.hcsTopicId = topicId;
 
     // Run negotiation in background (don't await)
@@ -190,7 +181,7 @@ export class NegotiationService {
 
     // Log to HCS
     try {
-      await this.getHederaService().submitMessage(message);
+      await hederaService.submitMessage(message);
       logger.info(`[Negotiation] Message logged to HCS: ${message.type}`);
     } catch (error) {
       logger.error('[Negotiation] Failed to log to HCS:', error);
