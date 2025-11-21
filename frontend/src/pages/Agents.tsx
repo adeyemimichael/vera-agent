@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Shield, TrendingUp, Package } from 'lucide-react';
+import { User, Shield, TrendingUp, Package, UserPlus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { api, Agent } from '../lib/api';
 import { formatAddress, formatTimestamp } from '../lib/utils';
 
@@ -55,11 +56,20 @@ export default function Agents() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold mb-2">Autonomous Agents</h1>
-        <p className="text-muted-foreground">
-          Registered agents with verified identities on Hedera
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold mb-2">Autonomous Agents</h1>
+          <p className="text-muted-foreground">
+            Registered agents with verified identities on Hedera
+          </p>
+        </div>
+        <Link
+          to="/agents/register"
+          className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-semibold shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300"
+        >
+          <UserPlus className="w-5 h-5" />
+          <span>Register New Agent</span>
+        </Link>
       </div>
 
       {agents.length === 0 ? (

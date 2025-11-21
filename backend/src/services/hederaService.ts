@@ -20,6 +20,9 @@ export class HederaService {
   constructor() {
     const accountId = process.env.HEDERA_ACCOUNT_ID;
     const privateKey = process.env.HEDERA_PRIVATE_KEY;
+    
+    console.log('HederaService constructor - accountId:', accountId);
+    console.log('HederaService constructor - privateKey length:', privateKey?.length);
 
     if (!accountId || !privateKey) {
       logger.warn('[Hedera] Credentials not configured - running in demo mode');
@@ -36,9 +39,11 @@ export class HederaService {
       this.client = Client.forTestnet();
       this.client.setOperator(this.operatorId, this.operatorKey);
       this.isConfigured = true;
-      logger.info('[Hedera] Successfully configured');
+      logger.info('[Hedera] Successfully configured with real credentials');
     } catch (error) {
       logger.error('[Hedera] Failed to initialize:', error);
+      logger.error('[Hedera] Account ID format should be: 0.0.12345');
+      logger.error('[Hedera] Private Key format should start with: 302e');
       this.isConfigured = false;
     }
   }
@@ -65,8 +70,14 @@ export class HederaService {
       logger.info(`[Hedera] Topic created: ${this.topicId}`);
 
       return this.topicId;
-    } catch (error) {
+    } catch (error: any) {
       logger.error('[Hedera] Failed to create topic:', error);
+      logger.error('[Hedera] Error details:', {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        name: error.name
+      });
       throw error;
     }
   }
@@ -153,4 +164,13 @@ export class HederaService {
   }
 }
 
-export const hederaService = new HederaService();
+// Singleton instance - lazy initialization
+let hederaServiceInstance: HederaService | null = null;
+
+export function getHederaService(): HederaService {
+  if (!hederaServiceInstance) {
+    console.log('Creating HederaService instance...');
+    hederaServiceInstance = new HederaService();
+  }
+  return hederaServiceInstance;
+}
